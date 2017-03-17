@@ -5,9 +5,13 @@
  */
 package automata;
 
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -15,6 +19,9 @@ import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -29,6 +36,7 @@ import org.jdesktop.swingx.prompt.PromptSupport;
  */
 public class View extends javax.swing.JFrame {
 
+    File archivo;
     JFileChooser seleccionado;
     Archivos files;
     int alf = 0;
@@ -42,15 +50,19 @@ public class View extends javax.swing.JFrame {
         alfabeto.getDocument().putProperty("name", "alfabeto");
         estados.getDocument().addDocumentListener(new documentListener());
         estados.getDocument().putProperty("name", "estados");
+
+        path.getDocument().addDocumentListener(new pathListener());
+        path.getDocument().putProperty("name", "path");
+
         PromptSupport.setPrompt("Please write characteres for alphabet", alfabeto);
         PromptSupport.setPrompt("Please write number(s) for states", estados);
-        PromptSupport.setPrompt("Please write a correct path", url);
+        PromptSupport.setPrompt("Please write a correct path", path);
         PromptSupport.setFocusBehavior(PromptSupport.FocusBehavior.HIDE_PROMPT, alfabeto);
         PromptSupport.setFocusBehavior(PromptSupport.FocusBehavior.HIDE_PROMPT, estados);
-        PromptSupport.setFocusBehavior(PromptSupport.FocusBehavior.HIDE_PROMPT, url);
+        PromptSupport.setFocusBehavior(PromptSupport.FocusBehavior.HIDE_PROMPT, path);
         PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, alfabeto);
         PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, estados);
-        PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, url);
+        PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, path);
 
     }
 
@@ -67,10 +79,10 @@ public class View extends javax.swing.JFrame {
         saveBtn = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jComboBox1 = new javax.swing.JComboBox();
+        selectOption = new javax.swing.JComboBox();
         minimizeBtn = new javax.swing.JButton();
         searchBtn = new javax.swing.JButton();
-        url = new javax.swing.JTextField();
+        path = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImage(img.getImage());
@@ -79,6 +91,9 @@ public class View extends javax.swing.JFrame {
 
         jLabel2.setText("Estados: ");
 
+        estados.setEnabled(false);
+
+        alfabeto.setEnabled(false);
         alfabeto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 alfabetoActionPerformed(evt);
@@ -93,6 +108,7 @@ public class View extends javax.swing.JFrame {
 
             }
         ));
+        tabla.setEnabled(false);
         jScrollPane1.setViewportView(tabla);
 
         saveBtn.setBackground(new java.awt.Color(255, 255, 255));
@@ -114,11 +130,24 @@ public class View extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(jTable1);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Automate form file", "Automate from table" }));
+        selectOption.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Automate form file", "Automate from table" }));
+        selectOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectOptionActionPerformed(evt);
+            }
+        });
 
         minimizeBtn.setText("Minimize");
 
         searchBtn.setText("Search");
+        searchBtn.setEnabled(false);
+        searchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBtnActionPerformed(evt);
+            }
+        });
+
+        path.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -146,9 +175,9 @@ public class View extends javax.swing.JFrame {
                                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 499, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
                                         .addGap(63, 63, 63)
-                                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(selectOption, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
-                                        .addComponent(url)
+                                        .addComponent(path)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(searchBtn)))
                                 .addGap(188, 188, 188)))
@@ -164,8 +193,8 @@ public class View extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(minimizeBtn)
                     .addComponent(searchBtn)
-                    .addComponent(url, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(path, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(selectOption, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -205,11 +234,68 @@ public class View extends javax.swing.JFrame {
          } else {
          JOptionPane.showMessageDialog(null, "Sorry... You have to select correct tokens and sample files first ☺");
          }*/
+ /*
+        aqui va a guardar el archivo serializado
+        ObjectOutputStream salida = new ObjectOutputStream(new FileOutputStream("media.ser"));
+            salida.writeObject("guardar este string y un objeto\n");
+            salida.writeObject(lista1);
+            salida.close();
+        
+         */
     }//GEN-LAST:event_saveBtnActionPerformed
 
     private void alfabetoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_alfabetoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_alfabetoActionPerformed
+
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+        archivo = null;
+        seleccionado = new JFileChooser();
+        if (seleccionado.showDialog(null, "Open File") == JFileChooser.APPROVE_OPTION) {
+            archivo = seleccionado.getSelectedFile();
+            if (archivo.canRead() && archivo.getName().endsWith("ser")) {
+                path.setText(seleccionado.getSelectedFile().getAbsolutePath());
+            } else {
+                path.setText("");
+                JOptionPane.showMessageDialog(null, "Please select a file serialized");
+            }
+        } else {
+            path.setText("");
+            JOptionPane.showMessageDialog(null, "Please select a file serialized");
+        }
+    }//GEN-LAST:event_searchBtnActionPerformed
+
+    private void selectOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectOptionActionPerformed
+        switch (selectOption.getSelectedIndex()) {
+            case 0:
+                path.setEnabled(false);
+                path.setText("");
+                searchBtn.setEnabled(false);
+                alfabeto.setEnabled(false);
+                alfabeto.setText("");
+                estados.setEnabled(false);
+                estados.setText("");
+                tabla.setEnabled(false);
+                break;
+            case 1:
+                path.setEnabled(true);
+                searchBtn.setEnabled(true);
+                alfabeto.setEnabled(false);
+                alfabeto.setText("");
+                estados.setEnabled(false);
+                estados.setText("");
+                tabla.setEnabled(false);
+                break;
+            case 2:
+                path.setEnabled(false);
+                path.setText("");
+                searchBtn.setEnabled(false);
+                alfabeto.setEnabled(true);
+                estados.setEnabled(true);
+                tabla.setEnabled(true);
+                break;
+        }
+    }//GEN-LAST:event_selectOptionActionPerformed
 
     public static void main(String args[]) {
         try {
@@ -235,17 +321,17 @@ public class View extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField alfabeto;
     private javax.swing.JTextField estados;
-    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
     private javax.swing.JButton minimizeBtn;
+    private javax.swing.JTextField path;
     private javax.swing.JButton saveBtn;
     private javax.swing.JButton searchBtn;
+    private javax.swing.JComboBox selectOption;
     private javax.swing.JTable tabla;
-    private javax.swing.JTextField url;
     // End of variables declaration//GEN-END:variables
 class documentListener implements DocumentListener {
 
@@ -269,7 +355,6 @@ class documentListener implements DocumentListener {
             Document doc = (Document) e.getDocument();
             DefaultTableModel model;
             ArrayList<String> columnNames = null;
-            // String[] columnNames = {"Picture", "Description"};
             switch (doc.getProperty("name").toString()) {
                 case "alfabeto":
                     alf = doc.getLength();
@@ -308,11 +393,58 @@ class documentListener implements DocumentListener {
                     }
                     System.out.println(titulos[x]);
                 }
+                for (int x = 0; x < est; x++) {
+                   // values[x] = "q" + x;
+                }
+                JViewport parent = (JViewport) tabla.getParent();
+                JScrollPane enclosing = (JScrollPane) parent.getParent();
+               // enclosing.setRowHeaderView(rowHeader);
+                getContentPane().add(enclosing, BorderLayout.CENTER);
                 System.out.println();
                 model = new DefaultTableModel(values, titulos);
                 tabla.setModel(model);
             } else {
                 tabla.setModel(new DefaultTableModel(0, 0));
+            }
+        }
+    }
+
+    class pathListener implements DocumentListener {
+
+        final String newline = "\n";
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            updateLog(e, "insertado en");
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            updateLog(e, "removido en");
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            updateLog(e, "cambio en");
+        }
+
+        public void updateLog(DocumentEvent e, String action) {
+            Document doc = (Document) e.getDocument();
+            archivo = new File(path.getText());
+            if (archivo.canRead() && archivo.getName().endsWith("ser")) {
+                JOptionPane.showMessageDialog(null, "si se podra ingresar los datos dentro de la tabla");
+                /*
+                Aqui va a leer el archivo serializado
+                
+                ObjectInputStream entrada = new ObjectInputStream(new FileInputStream("media.ser"));
+            String str = (String) entrada.readObject();
+            Lista obj1 = (Lista) entrada.readObject();
+            System.out.println("Valor medio " + obj1.valorMedio());
+            System.out.println("-----------------------------");
+            System.out.println(str + obj1);
+            System.out.println("-----------------------------");
+            entrada.close();
+                 */
             }
         }
     }
