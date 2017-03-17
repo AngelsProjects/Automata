@@ -51,7 +51,7 @@ public class View extends javax.swing.JFrame {
         PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, alfabeto);
         PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, estados);
         PromptSupport.setFontStyle(Font.ITALIC | Font.BOLD, url);
-        
+
     }
 
     @SuppressWarnings("unchecked")
@@ -283,13 +283,28 @@ class documentListener implements DocumentListener {
                     break;
             }
             if (est > 0 && alf > 0) {
-                Object values[][]=new Object[est][alf];
-                String titulos[]=new String[alf];
-                for(int x=0;x<alf;x++){
-                    if((x+1)<alf){
-                    titulos[x]=alfabeto.getText().substring(x, x+1);    
-                    }else{
-                        titulos[x]=alfabeto.getText().substring(x);
+                Object values[][] = new Object[est][alf];
+                String titulos[] = new String[alf];
+                for (int x = 0; x < alf; x++) {
+                    if ((x + 1) < alf) {
+                        if ("[".equals(alfabeto.getText().substring(x, x + 1))) {
+                            boolean flag = false;
+                            for (int y = x; y < alfabeto.getText().substring(x).length(); y++) {
+                                if ("]".equals(alfabeto.getText().substring(y, y + 1))) {
+                                    flag = true;
+                                    titulos[x] = alfabeto.getText().substring(x, y + 1);
+                                    break;
+                                }
+                            }
+                            if (flag == false) {
+                                titulos[x] = alfabeto.getText().substring(x, x + 1);
+                            }
+                        } else {
+                            titulos[x] = alfabeto.getText().substring(x, x + 1);
+                        }
+
+                    } else {
+                        titulos[x] = alfabeto.getText().substring(x);
                     }
                     System.out.println(titulos[x]);
                 }
@@ -300,5 +315,9 @@ class documentListener implements DocumentListener {
                 tabla.setModel(new DefaultTableModel(0, 0));
             }
         }
+    }
+
+    public void minimizeAutomate() {
+
     }
 }
