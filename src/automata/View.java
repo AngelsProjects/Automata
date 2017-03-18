@@ -19,6 +19,7 @@ import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -26,6 +27,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
 import org.jdesktop.swingx.prompt.PromptSupport;
@@ -355,6 +357,14 @@ class documentListener implements DocumentListener {
             Document doc = (Document) e.getDocument();
             DefaultTableModel model;
             ArrayList<String> columnNames = null;
+            
+            
+            //ALINEA LOS TITULOS DE LAS COLUMNAS
+            TableCellRenderer rendererFromHeader = tabla.getTableHeader().getDefaultRenderer();
+            JLabel headerLabel = (JLabel) rendererFromHeader;
+            headerLabel.setHorizontalAlignment(JLabel.CENTER);
+            //AQUI TERMINA LA ALINEACION DE LOS TITULOS DE LAS COLUMNAS
+            
             switch (doc.getProperty("name").toString()) {
                 case "alfabeto":
                     alf = doc.getLength();
