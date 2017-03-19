@@ -6,6 +6,9 @@
 package automata;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,11 +25,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
@@ -37,7 +43,7 @@ import org.jdesktop.swingx.prompt.PromptSupport;
  * @author CLON
  */
 public class View extends javax.swing.JFrame {
-
+Object values[][];
     File archivo;
     JFileChooser seleccionado;
     Archivos files;
@@ -367,7 +373,7 @@ class documentListener implements DocumentListener {
             
             switch (doc.getProperty("name").toString()) {
                 case "alfabeto":
-                    alf = doc.getLength();
+                    alf = doc.getLength()+1;
                     break;
                 case "estados":
                     if (estados.getText().matches("\\d+")) {
@@ -378,10 +384,17 @@ class documentListener implements DocumentListener {
                     break;
             }
             if (est > 0 && alf > 0) {
-                Object values[][] = new Object[est][alf];
+                 values= new Object[est][alf];
                 String titulos[] = new String[alf];
+                
                 for (int x = 0; x < alf; x++) {
+                    if(x==0){
+                        titulos[0]="Estado";
+                    }
+                    else {
+                       
                     if ((x + 1) < alf) {
+                        
                         if ("[".equals(alfabeto.getText().substring(x, x + 1))) {
                             boolean flag = false;
                             for (int y = x; y < alfabeto.getText().substring(x).length(); y++) {
@@ -398,14 +411,19 @@ class documentListener implements DocumentListener {
                             titulos[x] = alfabeto.getText().substring(x, x + 1);
                         }
 
-                    } else {
+                    } 
+                    else {
                         titulos[x] = alfabeto.getText().substring(x);
                     }
                     System.out.println(titulos[x]);
                 }
-                for (int x = 0; x < est; x++) {
-                   // values[x] = "q" + x;
+                
                 }
+                for (int x = 0; x < est; x++) {
+                    values[x][0] = "q" + x;
+                }
+                
+                
                 JViewport parent = (JViewport) tabla.getParent();
                 JScrollPane enclosing = (JScrollPane) parent.getParent();
                // enclosing.setRowHeaderView(rowHeader);
@@ -416,8 +434,31 @@ class documentListener implements DocumentListener {
             } else {
                 tabla.setModel(new DefaultTableModel(0, 0));
             }
+                tabla.getColumnModel().getColumn(0).setCellRenderer(new RowHeaderRenderer());//.setHeaderValue("setzo");//.setCellRenderer(new RowHeaderRenderer());
+                
+            
+            
+            
         }
     }
+
+ class RowHeaderRenderer extends DefaultTableCellRenderer {
+    public RowHeaderRenderer() {
+        setHorizontalAlignment(JLabel.CENTER);
+    }
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+    {
+        Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            JTableHeader header = table.getTableHeader();
+        cellComponent.setBackground(header.getBackground());
+        cellComponent.setFont(header.getFont());
+        cellComponent.setForeground(header.getForeground());
+        cellComponent.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return cellComponent;
+    }
+    }
+
 
     class pathListener implements DocumentListener {
 
