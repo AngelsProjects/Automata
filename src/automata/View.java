@@ -43,7 +43,8 @@ import org.jdesktop.swingx.prompt.PromptSupport;
  * @author CLON
  */
 public class View extends javax.swing.JFrame {
-Object values[][];
+
+    Object values[][];
     File archivo;
     JFileChooser seleccionado;
     Archivos files;
@@ -363,17 +364,16 @@ class documentListener implements DocumentListener {
             Document doc = (Document) e.getDocument();
             DefaultTableModel model;
             ArrayList<String> columnNames = null;
-            
-            
+
             //ALINEA LOS TITULOS DE LAS COLUMNAS
             TableCellRenderer rendererFromHeader = tabla.getTableHeader().getDefaultRenderer();
             JLabel headerLabel = (JLabel) rendererFromHeader;
             headerLabel.setHorizontalAlignment(JLabel.CENTER);
             //AQUI TERMINA LA ALINEACION DE LOS TITULOS DE LAS COLUMNAS
-            
+
             switch (doc.getProperty("name").toString()) {
                 case "alfabeto":
-                    alf = doc.getLength()+1;
+                    alf = doc.getLength();
                     break;
                 case "estados":
                     if (estados.getText().matches("\\d+")) {
@@ -384,81 +384,52 @@ class documentListener implements DocumentListener {
                     break;
             }
             if (est > 0 && alf > 0) {
-                 values= new Object[est][alf];
-                String titulos[] = new String[alf];
-                
-                for (int x = 0; x < alf; x++) {
-                    if(x==0){
-                        titulos[0]="Estado";
-                    }
-                    else {
-                       
-                    if ((x + 1) < alf) {
-                        
-                        if ("[".equals(alfabeto.getText().substring(x, x + 1))) {
-                            boolean flag = false;
-                            for (int y = x; y < alfabeto.getText().substring(x).length(); y++) {
-                                if ("]".equals(alfabeto.getText().substring(y, y + 1))) {
-                                    flag = true;
-                                    titulos[x] = alfabeto.getText().substring(x, y + 1);
-                                    break;
-                                }
-                            }
-                            if (flag == false) {
-                                titulos[x] = alfabeto.getText().substring(x, x + 1);
-                            }
-                        } else {
-                            titulos[x] = alfabeto.getText().substring(x, x + 1);
-                        }
+                values = new Object[est][alf+1];
+                String titulos[] = new String[alf+1];
+                for (int x = 0; x < alf + 1; x++) {
+                    if (x == 0) {
+                        titulos[x] = "States";
 
-                    } 
-                    else {
-                        titulos[x] = alfabeto.getText().substring(x);
+                    } else {
+                        if (x != alf) {
+                            titulos[x] = alfabeto.getText().substring(x-1, x);
+
+                        }else{
+                         titulos[x] = alfabeto.getText().substring(x-1);   
+                        }
                     }
-                    System.out.println(titulos[x]);
-                }
-                
+
                 }
                 for (int x = 0; x < est; x++) {
                     values[x][0] = "q" + x;
                 }
-                
-                
-                JViewport parent = (JViewport) tabla.getParent();
-                JScrollPane enclosing = (JScrollPane) parent.getParent();
-               // enclosing.setRowHeaderView(rowHeader);
-                getContentPane().add(enclosing, BorderLayout.CENTER);
-                System.out.println();
                 model = new DefaultTableModel(values, titulos);
                 tabla.setModel(model);
             } else {
                 tabla.setModel(new DefaultTableModel(0, 0));
             }
-                tabla.getColumnModel().getColumn(0).setCellRenderer(new RowHeaderRenderer());//.setHeaderValue("setzo");//.setCellRenderer(new RowHeaderRenderer());
-                
-            
-            
-            
+
+            tabla.getColumnModel().getColumn(0).setCellRenderer(new RowHeaderRenderer());//.setHeaderValue("setzo");//.setCellRenderer(new RowHeaderRenderer());
         }
     }
 
- class RowHeaderRenderer extends DefaultTableCellRenderer {
-    public RowHeaderRenderer() {
-        setHorizontalAlignment(JLabel.CENTER);
-    }
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-    {
-        Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    class RowHeaderRenderer extends DefaultTableCellRenderer {
+
+        public RowHeaderRenderer() {
+            setHorizontalAlignment(JLabel.CENTER);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             JTableHeader header = table.getTableHeader();
-        cellComponent.setBackground(header.getBackground());
-        cellComponent.setFont(header.getFont());
-        cellComponent.setForeground(header.getForeground());
-        cellComponent.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return cellComponent;
+            cellComponent.setBackground(header.getBackground());
+            cellComponent.setFont(header.getFont());
+            cellComponent.setForeground(header.getForeground());
+            cellComponent.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            return cellComponent;
+        }
     }
-    }
-
 
     class pathListener implements DocumentListener {
 
