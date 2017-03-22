@@ -1,12 +1,7 @@
-/*
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package automata;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Minimaze {
 
@@ -67,38 +62,79 @@ public class Minimaze {
         }
 
         ArrayList<Integer[]> matrices = new ArrayList();
-        for (int x = 0; x < estados.length; x++) {
-
+        Integer acep[] = new Integer[aceptacion.size()];
+        Integer noAcep[] = new Integer[transicion.size() - aceptacion.size()];
+        int si = 0;
+        int no = 0;
+        for (int x = 0; x < acep.length; x++) {
+            acep[x] = aceptacion.get(x);
         }
-
-        resultado = new ArrayList();
-        for (int x = 0; x <) {
-
-        }
-        //entonces la matriz 1 sera solo de aceptacion sino sera solo de no aceptacion
-
-        Integer m1[][];
-        Integer m2[][] = new Integer[cant][alfabeto.size()];
-        if (flag) {
-            m1 = new Integer[aceptacion.size()][alfabeto.size()];
-            m2 = new Integer[estados.length - aceptacion.size()][alfabeto.size()];
-            for (int x = 0; x < transicion.size(); x++) {
-                for (int y = 0; y < aceptacion.size(); y++) {
-
-                    if (x == aceptacion.get(y)) {
-                        m1
-                    } else {
-
-                    }
-
+        for (int x = 0; x < transicion.size(); x++) {
+            boolean flag2 = false;
+            for (Integer acep1 : acep) {
+                if (x == acep1) {
+                    flag2 = true;
                 }
             }
-        } else {
-            m1 = new Integer[estados.length - aceptacion.size()][alfabeto.size()];
-            m2 = new Integer[aceptacion.size()][alfabeto.size()];
-
+            if (!flag2) {
+                noAcep[no] = x;
+                no++;
+            }
         }
+// recursividad(matrices);
+        ArrayList<Integer[]> sol = new ArrayList();
+        Integer acep1[] = new Integer[1];
+        acep1[0] = 0;
+        sol.add(acep1);
+        acep1 = new Integer[1];
+        acep1[0] = 3;
+        sol.add(acep1);
+        acep1 = new Integer[2];
+        acep1[0] = 1;
+        acep1[1] = 2;
+        sol.add(acep1);
+        acep1 = new Integer[2];
+        acep1[0] = 4;
+        acep1[1] = 5;
+        sol.add(acep1);
+        solucion(sol);
 
     }
 
+    public void recursividad(ArrayList<Integer[]> matrices) {
+
+    }
+/// cuando recibimos los estados ya minimizados ({0,1}{5}{2,3,4})ahora creamos nuevos estados solidos ({0}{1}{2}) 
+
+    public void solucion(ArrayList<Integer[]> matrices) {
+        ArrayList<Integer> nuevaAceptacion = new ArrayList();
+        for (int x = 0; x < matrices.size(); x++) {
+            Integer temp2[] = transicion.get(matrices.get(x)[0]);
+            for (Integer temp21 : temp2) {
+                for (int z = 0; z < aceptacion.size(); z++) {
+                    if (Objects.equals(temp21, aceptacion.get(z))) {
+                        for (int j = 0; j < nuevaAceptacion.size(); j++) {
+                            if (x != nuevaAceptacion.get(j)) {
+                                nuevaAceptacion.add(x);
+                            }
+                        }
+                    }
+                }
+            }
+            aceptacion = nuevaAceptacion;
+            for (Integer temp21 : temp2) {
+                for (int y = 0; y < matrices.size(); y++) {
+                    Integer resultadoVector[] = new Integer[matrices.get(0).length];
+                    for (int z = 0; z < matrices.get(y).length; z++) {
+                        if (Objects.equals(temp21, matrices.get(y)[z])) {
+                            resultadoVector[z] = y;
+                        }
+                    }
+                    resultado.add(resultadoVector);
+                }
+            }
+        }
+        transicion = resultado;
+    }
+//termino en convertir la nueva mnatriz de transicion;
 }
