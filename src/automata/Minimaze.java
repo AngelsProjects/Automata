@@ -53,7 +53,6 @@ public class Minimaze {
         ArrayList<int[]> matrices = new ArrayList();
         int acep[] = new int[aceptacion.size()];
         int noAcep[] = new int[transicion.size() - aceptacion.size()];
-        int si = 0;
         int no = 0;
         for (int x = 0; x < acep.length; x++) {
             acep[x] = aceptacion.get(x);
@@ -70,7 +69,9 @@ public class Minimaze {
                 no++;
             }
         }
-// recursividad(matrices);
+        matrices.add(acep);
+        matrices.add(noAcep);
+        // recursividad(matrices);
         ArrayList<int[]> sol = new ArrayList();
         int acep1[] = new int[1];
         acep1[0] = 0;
@@ -98,25 +99,27 @@ public class Minimaze {
     public void solucion(ArrayList<int[]> matrices) {
         ArrayList<Integer> nuevaAceptacion = new ArrayList();
         for (int x = 0; x < matrices.size(); x++) {
-            for (int y = 0; y < aceptacion.size(); y++) {
-                if (matrices.get(x)[0] == aceptacion.get(y)) {
+            for (Integer aceptacion1 : aceptacion) {
+                if (matrices.get(x)[0] == aceptacion1) {
                     nuevaAceptacion.add(x);
                 }
             }
-            System.out.println(x);
         }
         aceptacion = nuevaAceptacion;
         resultado = new ArrayList();
         int resultadoVector[];
         for (int y = 0; y < matrices.size(); y++) {
             resultadoVector = new int[alfabeto.size()];
+            int cont = 0;
             for (int x = 0; x < resultadoVector.length; x++) {
                 int nueva[] = transicion.get(matrices.get(y)[0]);
                 for (int nueva1 : nueva) {
                     for (int w = 0; w < matrices.size(); w++) {
                         for (int get : matrices.get(w)) {
-                            if (get == nueva1) {
+                            if (get == nueva1 && cont < resultadoVector.length + 1) {
                                 resultadoVector[x] = w;
+                                cont++;
+                                System.out.println(w);
                             }
                         }
                     }

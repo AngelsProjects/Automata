@@ -6,6 +6,5 @@ public class Automata {
         View vista = new View();
         vista.setLocationRelativeTo(null);
         vista.setVisible(true);
-
     }
 }
