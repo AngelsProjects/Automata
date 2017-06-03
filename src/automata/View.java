@@ -14,11 +14,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -51,12 +55,16 @@ public class View extends javax.swing.JFrame {
     int alf = 0;
     int est = 0;
     ImageIcon img;
+    ArrayList<int[]> transicion = null;
+    ArrayList<Integer> acepta;
 
     public View() {
         img = new ImageIcon("src/resources/atom-icon.png");
         initComponents();
+//estados.setText("Hello World!!");
         alfabeto.getDocument().addDocumentListener(new documentListener());
         alfabeto.getDocument().putProperty("name", "alfabeto");
+
         estados.getDocument().addDocumentListener(new documentListener());
         estados.getDocument().putProperty("name", "estados");
 
@@ -264,6 +272,7 @@ public class View extends javax.swing.JFrame {
             archivo = seleccionado.getSelectedFile();
             if (archivo.canRead() && archivo.getName().endsWith("ser")) {
                 path.setText(seleccionado.getSelectedFile().getAbsolutePath());
+                llenarArreglo();
             } else {
                 path.setText("");
                 JOptionPane.showMessageDialog(null, "Please select a file serialized");
@@ -384,32 +393,43 @@ class documentListener implements DocumentListener {
                     break;
             }
             if (est > 0 && alf > 0) {
-                values = new Object[est][alf+1];
-                String titulos[] = new String[alf+1];
+                values = new Object[est][alf + 1];
+                String titulos[] = new String[alf + 1];
                 for (int x = 0; x < alf + 1; x++) {
                     if (x == 0) {
                         titulos[x] = "States";
 
                     } else {
                         if (x != alf) {
-                            titulos[x] = alfabeto.getText().substring(x-1, x);
+                            titulos[x] = alfabeto.getText().substring(x - 1, x);
 
-                        }else{
-                         titulos[x] = alfabeto.getText().substring(x-1);   
+                        } else {
+                            titulos[x] = alfabeto.getText().substring(x - 1);
                         }
                     }
 
                 }
-                for (int x = 0; x < est; x++) {
-                    values[x][0] = "q" + x;
+                if (transicion != null) {
+                    for (int x = 1; x < alf + 1; x++) {
+                        for (int y = 0; y < est; y++) {
+                            values[y][x] = transicion.get(y)[x - 1];
+                        }
+                    }
+                }
+                for (int y = 0; y < est; y++) {
+                    values[y][0] = "q" + y;
                 }
                 model = new DefaultTableModel(values, titulos);
                 tabla.setModel(model);
+                for(Integer num:acepta){
+                    tabla.addRowSelectionInterval(num, num);
+                }
+                
+                tabla.getColumnModel().getColumn(0).setCellRenderer(new RowHeaderRenderer());
             } else {
                 tabla.setModel(new DefaultTableModel(0, 0));
             }
 
-            tabla.getColumnModel().getColumn(0).setCellRenderer(new RowHeaderRenderer());//.setHeaderValue("setzo");//.setCellRenderer(new RowHeaderRenderer());
         }
     }
 
@@ -437,41 +457,58 @@ class documentListener implements DocumentListener {
 
         @Override
         public void insertUpdate(DocumentEvent e) {
-            updateLog(e, "insertado en");
+            try {
+                updateLog(e, "insertado en");
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            updateLog(e, "removido en");
+            try {
+                updateLog(e, "removido en");
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            updateLog(e, "cambio en");
+            try {
+                updateLog(e, "cambio en");
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
-        public void updateLog(DocumentEvent e, String action) {
+        public void updateLog(DocumentEvent e, String action) throws FileNotFoundException {
             Document doc = (Document) e.getDocument();
             archivo = new File(path.getText());
             if (archivo.canRead() && archivo.getName().endsWith("ser")) {
-                JOptionPane.showMessageDialog(null, "si se podra ingresar los datos dentro de la tabla");
-                /*
-                Aqui va a leer el archivo serializado
-                
-                ObjectInputStream entrada = new ObjectInputStream(new FileInputStream("media.ser"));
-            String str = (String) entrada.readObject();
-            Lista obj1 = (Lista) entrada.readObject();
-            System.out.println("Valor medio " + obj1.valorMedio());
-            System.out.println("-----------------------------");
-            System.out.println(str + obj1);
-            System.out.println("-----------------------------");
-            entrada.close();
-                 */
+                llenarArreglo();
             }
         }
     }
 
-    public void minimizeAutomate() {
-
+    public void llenarArreglo() {
+        try {
+            FileInputStream fileIn = new FileInputStream(path.getText());
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            transicion = (ArrayList<int[]>) in.readObject();
+            ArrayList<String> alfa = (ArrayList<String>) in.readObject();
+            acepta = (ArrayList<Integer>) in.readObject();
+            in.close();
+            fileIn.close();
+            String alfagu = "";
+            for (String letra : alfa) {
+                alfagu = alfagu + letra;
+            }
+            String numero = transicion.size() + "";
+            estados.setText(numero);
+            alfabeto.setText(alfagu);
+        } catch (ClassNotFoundException | IOException O) {
+            System.err.println("error en: " + O);
+        }
     }
 }

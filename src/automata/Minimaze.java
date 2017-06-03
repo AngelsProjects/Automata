@@ -1,5 +1,10 @@
 package automata;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class Minimaze {
@@ -10,12 +15,12 @@ public class Minimaze {
     ArrayList<int[]> transicion;
     ArrayList<int[]> resultado;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
         Minimaze min = new Minimaze();
         min.miniizar();
     }
 
-    public void miniizar() {
+    public void miniizar() throws ClassNotFoundException {
 
         aceptacion = new ArrayList();
         aceptacion.add(4);
@@ -49,6 +54,29 @@ public class Minimaze {
         estados[0] = 5;
         estados[1] = 5;
         transicion.add(estados);
+        try {
+            FileOutputStream fos = new FileOutputStream("Salida.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(transicion);
+            oos.writeObject(alfabeto);
+            oos.writeObject(aceptacion);
+            oos.close();
+            fos.close();
+            
+             FileInputStream fileIn = new FileInputStream("Salida.ser");
+                    ObjectInputStream in = new ObjectInputStream(fileIn);
+                    ArrayList<int[]> List_Of_Lists = (ArrayList<int[]>) in.readObject();
+                ArrayList<String> alfa= (ArrayList<String>) in.readObject();
+                ArrayList<Integer> acepta= (ArrayList<Integer>) in.readObject();
+                
+                    in.close();
+                    fileIn.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        
+        
+        
 
         ArrayList<int[]> matrices = new ArrayList();
         int acep[] = new int[aceptacion.size()];
